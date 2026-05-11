@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+	<title>My Touch — Donut Tycoon</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			--bg: #1a1a2e;
+			--surface: #16213e;
+			--text: #e8eaed;
+			--text-dim: #9aa0a6;
+			--accent: #ffeb3b;
+			--accent-pink: #e91e63;
+			--accent-green: #81c784;
+			--accent-blue: #8ab4f8;
+			--border: rgba(255, 255, 255, 0.1);
+		}
+
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			background: var(--bg);
+			color: var(--text);
+			min-height: 100vh;
+			min-height: 100dvh;
+			-webkit-font-smoothing: antialiased;
+			line-height: 1.75;
+		}
+
+		.back-bar {
+			position: sticky;
+			top: 0;
+			z-index: 10;
+			background: var(--bg);
+			border-bottom: 1px solid var(--border);
+			padding: 12px 20px;
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+		}
+
+		.back-link {
+			color: var(--accent);
+			text-decoration: none;
+			font-size: 0.95rem;
+			font-weight: 500;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			transition: color 0.2s;
+		}
+
+		.back-link:hover {
+			color: #fff;
+		}
+
+		.container {
+			max-width: 680px;
+			margin: 0 auto;
+			padding: 32px 20px 80px;
+		}
+
+		h1 {
+			font-size: 2.2rem;
+			font-weight: 700;
+			color: #fff;
+			margin-bottom: 4px;
+			letter-spacing: -0.3px;
+		}
+
+		.subtitle {
+			font-size: 0.95rem;
+			color: var(--text-dim);
+			margin-bottom: 36px;
+		}
+
+		h2 {
+			font-size: 1.3rem;
+			font-weight: 600;
+			color: var(--accent);
+			margin: 40px 0 12px;
+			letter-spacing: -0.1px;
+		}
+
+		p {
+			margin-bottom: 16px;
+			color: #d0d3d8;
+			font-size: 1rem;
+		}
+
+		strong {
+			color: #fff;
+			font-weight: 600;
+		}
+
+		em {
+			font-style: italic;
+			color: #c5c8cc;
+		}
+
+		.inline-code {
+			font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
+			background: var(--surface);
+			color: #fdd663;
+			padding: 2px 8px;
+			border-radius: 4px;
+			font-size: 0.9rem;
+			white-space: nowrap;
+			letter-spacing: 0;
+		}
+
+		ul {
+			margin: 12px 0 20px;
+			padding-left: 24px;
+			color: #d0d3d8;
+			list-style: none;
+		}
+
+		ul li {
+			margin-bottom: 10px;
+			padding-left: 20px;
+			position: relative;
+		}
+
+		ul li::before {
+			content: "•";
+			position: absolute;
+			left: 0;
+			color: var(--accent);
+			font-weight: bold;
+		}
+
+		.highlight-box {
+			background: rgba(255, 255, 255, 0.04);
+			border: 1px solid var(--border);
+			border-radius: 10px;
+			padding: 18px 20px;
+			margin: 20px 0;
+			font-size: 0.95rem;
+			color: #c5c8cc;
+		}
+
+		.closing {
+			text-align: center;
+			padding: 40px 0 20px;
+			color: var(--text-dim);
+			font-style: italic;
+			line-height: 1.8;
+		}
+
+		.closing strong {
+			color: var(--accent);
+			font-style: normal;
+		}
+
+		hr {
+			border: none;
+			height: 1px;
+			background: var(--border);
+			margin: 36px 0;
+		}
+
+		@media (min-width: 500px) {
+			h1 {
+				font-size: 2.6rem;
+			}
+			.container {
+				padding: 40px 24px 80px;
+			}
+		}
+	</style>
+</head>
+<body>
+
+	<div class="back-bar">
+		<a href="index.html" class="back-link"> ← Back to Game</a>
+	</div>
+
+	<div class="container">
+
+		<h1>My Touch</h1>
+		<p class="subtitle">What I did to a broken donut game and why</p>
+
+		<h2>I. The Accidental Inheritance</h2>
+
+		<p>A few months ago, a friend on SoloLearn shared a donut clicker game. Simple stuff: a big donut emoji, some buttons, numbers going up. I left a compliment, scrolled past, didn't think much of it.</p>
+
+		<p>But something stuck. Not the game itself. The <em>possibility</em> of it. I kept thinking: this works, but it could breathe better. The numbers tick, sure, but nothing feels alive. No feedback when you click. No smoothness. No trust that your progress will survive a browser refresh.</p>
+
+		<p>So I went back. Not to copy — to <em>touch</em>.</p>
+
+		<h2>II. What I Actually Changed (And Why)</h2>
+
+		<p>The game logic is untouched. Same buildings, same prices, same math. I didn't reinvent the wheel, I just made it roll smoother.</p>
+
+		<p><strong>The structure.</strong> The CSS opened with a syntax error that somehow still worked. The JavaScript mixed inline handlers with event listeners like it couldn't decide which era it belonged to. I cleaned it up. Just enough that the next person who opens this code won't have to squint.</p>
+
+		<p><strong>The loop.</strong> <code class="inline-code">setTimeout</code> at 40ms is fine until your tab loses focus and your donuts stop accumulating while you're checking messages. I switched to <code class="inline-code">requestAnimationFrame</code> with <code class="inline-code">performance.now()</code>. The game keeps breathing even when you look away.</p>
+
+		<p><strong>The feedback.</strong> <code class="inline-code">alert("Bought Cursor!")</code> is a crime against user experience. It rips you out of the game. I replaced it with floating text — little "+1" and "+0.1/s" bubbles that drift upward and vanish. You stay in the flow. The game whispers instead of shouting.</p>
+
+		<p><strong>The persistence.</strong> The original had a "Save" button that basically confessed <em>"this might not work."</em> I added email-based save/load. Here's the thing though — it's not actually emailing anything. It just uses <code class="inline-code">localStorage</code> with your email as a key. Think of it like this: your grandpa says he wants to play too. And maybe your pet. This way they each get their own save slot without ruining your 47 factories. It's a joke, but also — it works.</p>
+
+		<h2>III. The Details Nobody Asked For</h2>
+
+		<p>I added <code class="inline-code">focus-visible</code> outlines for keyboard players. A <code class="inline-code">backdrop-filter</code> fallback because not every browser supports blur. Email validation with a regex that isn't perfect but catches the obvious disasters. These aren't features you list on a landing page. They're just... <em>care</em>. The kind of care that makes something feel finished instead of abandoned.</p>
+
+		<h2>IV. What This Is (And Isn't)</h2>
+
+		<p>I know clicker games are everywhere. Cookie Clicker clones are the "Hello World" of game development. I didn't make this to be original, I made it to be <em>clear</em>. Something a beginner can open, read, and understand. A cheat sheet with a pulse.</p>
+
+		<p>If you're learning JavaScript, you can look at this and see:</p>
+
+		<ul>
+			<li>How <code class="inline-code">reduce()</code> calculates production rates</li>
+			<li>Why <code class="inline-code">requestAnimationFrame</code> beats <code class="inline-code">setInterval</code></li>
+			<li>How to separate concerns without over-engineering</li>
+			<li>How to store data locally without a backend</li>
+		</ul>
+
+		<h2>V. What It Could Be</h2>
+
+		<p>This isn't finished. It's not supposed to be. If you want to play with this code and make it your own, here are a few things you could try building:</p>
+
+		<ul>
+			<li><strong>Offline earnings.</strong> The game should count donuts even when you're logged off. Come back after a day, see what you missed. It's the whole point of idle games.</li>
+			<li><strong>Achievements.</strong> "First Thousand Donuts." "Grandma Army." Little dopamine hits that keep you scrolling.</li>
+			<li><strong>Prestige system.</strong> Reset everything for a permanent multiplier. The classic "do it all again, but faster" loop.</li>
+			<li><strong>Visual upgrades.</strong> The donut should change as you progress: sprinkles, glaze, gold leaf. The buildings should animate. A grandma should look like she's baking.</li>
+			<li><strong>Sound.</strong> The soft click of a donut. The cha-ching of a purchase. Not music — texture.</li>
+			<li><strong>Dark mode toggle.</strong> Because not everyone wants a purple gradient at 2 AM.</li>
+			<li><strong>Export/Import JSON.</strong> For people who want to move saves between devices without the email workaround.</li>
+		</ul>
+
+		<h2>VI. Why I Touch Things</h2>
+
+		<p>I can't leave code alone. "Good enough" isn't a category I understand. I see a <code class="inline-code">var</code> where a <code class="inline-code">const</code> should live and my fingers itch. I see an <code class="inline-code">alert()</code> and I see a missed opportunity to delight someone.</p>
+
+		<p>This isn't about the donut. The donut is ridiculous. It's about the act of making something slightly better than you found it. About leaving fingerprints. About the stubborn belief that <em>craft matters</em>, even in a throwaway clicker game on a coding playground.</p>
+
+		<hr>
+
+		<h2>VII. The Actual Closing</h2>
+
+		<p>If you're reading this and you're the friend who shared the original — thank you. I know you don't mind that I took your sketch and painted over it. The lines underneath are still yours.</p>
+
+		<p>If you're reading this and you're learning to code — take this. Break it. Add the offline earnings. Make the donut spin. Make it yours.</p>
+
+		<div class="closing">
+			<p>The code is yawning.<br>The donut is waiting.</p>
+			<p style="margin-top: 24px; font-style: normal; font-size: 0.9rem;">
+				<strong>— Nyota Wa Kweli</strong> 🧌
+			</p>
+		</div>
+		<!-- Add this section right after the closing "— Nyota Wa Kweli 🧌" signature div and before the closing </div> of .container -->
+
+<hr>
+
+<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-top: 24px;">
+	<p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 12px;">
+		<strong style="color: #fff;">Original code by Aidan</strong> on SoloLearn. 
+		I found it, loved the idea, and spent weeks polishing every detail 
+		into what you see now. The core game logic is still his.
+	</p>
+	<a href="https://sololearn.com/compiler-playground/WqG12sYSgVbo/?ref=app" 
+	   target="_blank" rel="noopener" 
+	   style="display: inline-block; padding: 10px 18px; background: #1a1a2e; 
+			  border: 1px solid #81c784; border-radius: 8px; color: #81c784; 
+			  text-decoration: none; font-size: 0.85rem; font-weight: 500; 
+			  transition: all 0.15s;"
+	   onmousedown="window.open('https://sololearn.com/compiler-playground/WqG12sYSgVbo/?ref=app','_blank')">
+		View original code →
+	</a>
+</div>
+
+<div style="text-align: center; padding: 32px 0 8px;">
+	<img src="https://i.ibb.co/XZjh9FPV/qr-code.png" 
+		 alt="QR code to full source code" 
+		 style="width: 180px; height: 180px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);" />
+	<p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 8px;">
+		Scan to get the full source code
+	</p>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; 
+			padding: 12px 0; margin-top: 16px; 
+			border-top: 1px solid rgba(255,255,255,0.08);">
+	<div style="font-weight: 700; font-size: 13px; letter-spacing: 1.5px;">
+		<span style="color: #ffca28;">G</span>
+		<span style="color: #ff9800;">U</span>
+		<span style="color: #f57f17;">G</span>
+		<span style="color: #ef6c00;">A</span>
+	</div>
+	<a href="https://instagram.com/8913_73" target="_blank" rel="noopener" 
+	   style="display: flex; align-items: center; gap: 6px; color: #9aa0a6; 
+			  text-decoration: none; font-size: 11px; transition: all 0.15s;">
+		<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+			<path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.3.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.5.3 1.1.4 2.3.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.3-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.5.2-1.1.3-2.3.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.3-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.5-.3-1.1-.4-2.3C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.3.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.5-.2 1.1-.3 2.3-.4C8.4 2.2 8.8 2.2 12 2.2zM12 0C8.7 0 8.3 0 7.1.1 5.8.1 4.9.3 4.1.6 3.3.9 2.6 1.3 2 2 1.3 2.6.9 3.3.6 4.1.3 4.9.1 5.8.1 7.1 0 8.3 0 8.7 0 12s0 3.7.1 4.9c.1 1.3.3 2.2.6 3 .3.8.7 1.5 1.4 2.1.6.6 1.3 1.1 2.1 1.4.8.3 1.7.5 3 .6C8.3 24 8.7 24 12 24s3.7 0 4.9-.1c1.3-.1 2.2-.3 3-.6.8-.3 1.5-.7 2.1-1.4.6-.6 1.1-1.3 1.4-2.1.3-.8.5-1.7.6-3 .1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.1-1.3-.3-2.2-.6-3-.3-.8-.7-1.5-1.4-2.1-.6-.6-1.3-1.1-2.1-1.4-.8-.3-1.7-.5-3-.6C15.7 0 15.3 0 12 0zm0 5.8c-3.4 0-6.2 2.8-6.2 6.2s2.8 6.2 6.2 6.2 6.2-2.8 6.2-6.2-2.8-6.2-6.2-6.2zm0 10.2c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zm6.4-11.8c-.8 0-1.4.6-1.4 1.4s.6 1.4 1.4 1.4 1.4-.6 1.4-1.4-.6-1.4-1.4-1.4z"/>
+		</svg>
+		@8913_73
+	</a>
+</div>
+
+	</div>
+</body>
+</html>
