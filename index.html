@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Donut Tycoon</title>
+    <style>
+        :root {
+            --glow-yellow: #ffeb3b;
+            --accent-pink: #e91e63;
+            --bg-dark: #0f1a3a;
+            --surface: #16213e;
+            --text-dim: #9aa0a6;
+            --blob-pink: #e91e63;
+            --blob-chocolate: #3E2723;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html {
+            background: #1a1a2e;
+            overscroll-behavior: none;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #1e0533, #0f1a3a);
+            color: #ffe;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            text-align: center;
+            -webkit-font-smoothing: antialiased;
+            touch-action: pan-y;
+            overscroll-behavior-x: none;
+            overflow-x: hidden;
+        }
+        h1 { margin: 0.4em 0 0.2em; color: #ffeb3b; text-shadow: 0 0 16px #ff9800; }
+        #score { font-size: 3.8rem; font-weight: bold; margin: 0.1em 0 0.3em; min-height: 1.1em; }
+        #cps { font-size: 1.3rem; color: #a5d6a7; margin-bottom: 1.5rem; }
+        #big-donut {
+            position: relative; width: 260px; height: 260px; margin: 1.5rem auto;
+            font-size: 9rem; line-height: 260px;
+            background: radial-gradient(circle at 35% 35%, #fff, #ffca28 20%, #f57f17 60%, #ef6c00);
+            border-radius: 50%; border: 10px solid #ffe082;
+            box-shadow: 0 10px 30px #0008, inset 0 8px 20px #fff4;
+            cursor: pointer; user-select: none; transition: transform 0.08s;
+        }
+        #big-donut:active { transform: scale(0.92); }
+        #big-donut.clicked { transform: scale(0.9); }
+        .brag-btn-wrapper { margin: 8px auto 0; max-width: 260px; }
+        .brag-btn {
+            width: 100%; padding: 12px; font-size: 1rem; font-weight: bold; color: #fff;
+            background: linear-gradient(135deg, #ff6d00, #ff9100); border: none; border-radius: 10px;
+            cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; letter-spacing: 0.4px;
+        }
+        .brag-btn:hover { transform: scale(1.03); box-shadow: 0 6px 20px rgba(255,109,0,0.4); }
+        .brag-btn:active { transform: scale(0.97); }
+        .community-link-wrapper { margin: 10px auto 0; max-width: 260px; }
+        .community-link {
+            display: block; width: 100%; padding: 10px; font-size: 0.85rem; font-weight: 500;
+            color: #a5d6a7; text-decoration: none; border: 1px solid rgba(165,214,167,0.25);
+            border-radius: 8px; transition: all 0.15s; text-align: center;
+        }
+        .community-link:hover { background: rgba(165,214,167,0.08); border-color: rgba(165,214,167,0.5); color: #fff; }
+        #buildings {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px; max-width: 1100px; margin: 2rem auto;
+        }
+        .building {
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px; padding: 1.2rem; transition: all 0.18s;
+        }
+        @supports (backdrop-filter: blur(6px)) { .building { background: rgba(255,255,255,0.08); backdrop-filter: blur(6px); } }
+        .building:hover { transform: translateY(-4px); background: rgba(255,255,255,0.14); }
+        .name { font-size: 1.4rem; font-weight: 600; margin-bottom: 0.3em; }
+        .owned { color: #81c784; font-size: 1.1rem; }
+        .produces { font-size: 0.95rem; opacity: 0.9; margin: 0.4em 0; }
+        button {
+            width: 100%; padding: 0.9em; margin-top: 0.8em; font-size: 1.1rem; font-weight: bold;
+            color: white; background: linear-gradient(#e91e63, #c2185b); border: none; border-radius: 8px;
+            cursor: pointer; transition: all 0.15s;
+        }
+        button:hover:not(:disabled) { background: linear-gradient(#f50057, #d81b60); transform: scale(1.03); }
+        button:disabled { background: #444; opacity: 0.5; cursor: not-allowed; }
+        button:focus-visible { outline: 3px solid #ffb74d; outline-offset: 2px; }
+        #reset {
+            padding: 12px 24px; font-size: 1rem; border-radius: 999px; border: none;
+            cursor: pointer; color: white; margin: 10px 5px; background: #f44336;
+        }
+        .float {
+            position: absolute; font-weight: bold; font-size: 2rem; color: #fff176;
+            pointer-events: none; animation: float-up 1.2s forwards;
+        }
+        @keyframes float-up { 0% { opacity:1; transform:translateY(0) scale(1); } 100% { opacity:0; transform:translateY(-80px) scale(1.4); } }
+        .email-controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+        #emailInput {
+            padding: 10px 15px; font-size: 1rem; border: 2px solid #ffd700; border-radius: 8px;
+            background: #1a1a2e; color: #ffe; min-width: 250px;
+        }
+        #emailInput::placeholder { color: #aaa; }
+        #saveEmail, #loadEmail {
+            padding: 10px 20px; font-size: 1rem; border: none; border-radius: 8px;
+            cursor: pointer; color: white; font-weight: bold; transition: 0.2s;
+        }
+        #saveEmail { background: #4caf50; }
+        #loadEmail { background: #2196f3; }
+        #saveEmail:hover, #loadEmail:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .available-progresses-wrapper { max-width: 480px; margin: 0 auto 12px; text-align: left; }
+        .available-progresses-toggle {
+            width: 100%; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; color: #ffe;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px; cursor: pointer; text-align: left; transition: background 0.15s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .available-progresses-toggle:hover { background: rgba(255,255,255,0.1); }
+        .available-progresses-toggle .arrow { font-size: 0.8rem; transition: transform 0.2s; }
+        .available-progresses-toggle.open .arrow { transform: rotate(180deg); }
+        .available-progresses-list {
+            display: none; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto;
+        }
+        .available-progresses-list.show { display: block; }
+        .available-progresses-list .progress-item {
+            padding: 10px 16px; cursor: pointer; font-size: 0.9rem; color: #d0d3d8;
+            border-bottom: 1px solid rgba(255,255,255,0.06); display: flex;
+            justify-content: space-between; align-items: center; transition: background 0.15s;
+        }
+        .available-progresses-list .progress-item:last-child { border-bottom: none; }
+        .available-progresses-list .progress-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .available-progresses-list .progress-time { font-size: 0.75rem; color: var(--text-dim); }
+        .available-progresses-empty { padding: 14px 16px; font-size: 0.85rem; color: var(--text-dim); text-align: center; }
+        .story-btn-wrapper { margin: 20px auto 10px; max-width: 400px; }
+        .story-btn {
+            width: 100%; padding: 14px; font-size: 1rem; font-weight: 600; color: #ffe;
+            background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.25);
+            border-radius: 10px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.3px;
+        }
+        .story-btn:hover { background: rgba(0,229,255,0.12); border-color: rgba(0,229,255,0.45); }
+        .story-btn:active { background: rgba(0,229,255,0.1); }
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #2e7d32; color: #fff; padding: 12px 24px; border-radius: 24px;
+            font-size: 0.95rem; font-weight: 600; z-index: 200; opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.5); letter-spacing: 0.2px; max-width: 90vw; text-align: center;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #c62828; }
+
+        /* Confirm Dialog */
+        .confirm-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 300; display: flex;
+            align-items: center; justify-content: center; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .confirm-overlay.show { opacity: 1; pointer-events: auto; }
+        .confirm-dialog {
+            background: #1a1a2e; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+            padding: 24px 20px; max-width: 340px; width: 90%; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .confirm-dialog p { font-size: 0.95rem; color: #ffe; margin-bottom: 20px; line-height: 1.5; }
+        .confirm-dialog .confirm-buttons { display: flex; gap: 12px; }
+        .confirm-dialog .confirm-buttons button {
+            flex: 1; padding: 12px; font-size: 0.95rem; font-weight: 600; border: none;
+            border-radius: 10px; cursor: pointer; transition: all 0.15s; font-family: inherit;
+        }
+        .confirm-dialog .confirm-yes { background: #e91e63; color: #fff; }
+        .confirm-dialog .confirm-yes:hover { background: #f50057; }
+        .confirm-dialog .confirm-no { background: rgba(255,255,255,0.1); color: #ffe; }
+        .confirm-dialog .confirm-no:hover { background: rgba(255,255,255,0.18); }
+
+        /* Floating Blob */
+        .info-blob {
+            position: fixed; width: 52px; height: 52px; border-radius: 50%;
+            background: var(--blob-pink); color: #fff; z-index: 250;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; font-weight: bold; cursor: grab;
+            box-shadow: 0 4px 16px rgba(233,30,99,0.5), 0 0 30px rgba(233,30,99,0.2);
+            user-select: none; -webkit-user-select: none;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            touch-action: none;
+        }
+        .info-blob:active { cursor: grabbing; transform: scale(1.08); box-shadow: 0 6px 24px rgba(233,30,99,0.7); }
+        .info-blob-panel {
+            position: fixed; z-index: 260; opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            transform: scale(0.9);
+        }
+        .info-blob-panel.open { opacity: 1; pointer-events: auto; transform: scale(1); }
+        .info-panel-inner {
+            background: var(--blob-pink); border-radius: 16px; padding: 20px 16px 16px;
+            width: 320px; max-height: 450px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6); position: relative;
+            color: var(--blob-chocolate); font-size: 0.85rem; line-height: 1.6;
+        }
+        .info-panel-inner h3 {
+            text-align: center; font-size: 1rem; margin-bottom: 14px; color: var(--blob-chocolate);
+            font-weight: 700; letter-spacing: 0.3px;
+        }
+        .info-panel-inner .section {
+            margin-bottom: 14px; padding-bottom: 12px;
+            border-bottom: 1px solid rgba(62,39,35,0.2);
+        }
+        .info-panel-inner .section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .info-panel-inner .section-title {
+            font-weight: 700; font-size: 0.8rem; letter-spacing: 0.5px;
+            margin-bottom: 4px; color: var(--blob-chocolate); opacity: 0.85;
+        }
+        .info-panel-inner .section p { margin: 0; color: var(--blob-chocolate); }
+        .info-panel-close {
+            position: sticky; top: 0; float: right; width: 28px; height: 28px;
+            border-radius: 50%; background: rgba(62,39,35,0.2); border: none;
+            color: var(--blob-chocolate); font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 5; margin-bottom: -20px;
+        }
+        .info-panel-close:active { background: rgba(62,39,35,0.35); }
+        .info-panel-footer {
+            text-align: center; margin-top: 14px; padding-top: 10px;
+            border-top: 1px solid rgba(62,39,35,0.2);
+            font-style: italic; font-size: 0.8rem; color: var(--blob-chocolate);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🍩 Donut Tycoon</h1>
+    <div id="score">0</div>
+    <div id="cps">0 donuts per second</div>
+    <div id="big-donut">🍩</div>
+
+    <div class="brag-btn-wrapper"><button class="brag-btn" id="bragBtn">📜 Brag</button></div>
+    <div class="community-link-wrapper"><a href="community.html" class="community-link">🌍 Braggers Community</a></div>
+
+    <div id="buildings"></div>
+
+    <div class="email-controls">
+        <input type="email" id="emailInput" placeholder="your@email.com" />
+        <button id="saveEmail">💾 Save to Email</button>
+        <button id="loadEmail">📂 Load from Email</button>
+    </div>
+
+    <div class="available-progresses-wrapper">
+        <button class="available-progresses-toggle" id="progressToggle">Available Progresses <span class="arrow">▼</span></button>
+        <div class="available-progresses-list" id="progressList"></div>
+    </div>
+
+    <button id="reset">Reset Game</button>
+
+    <div class="story-btn-wrapper"><button class="story-btn" id="storyBtn">📖 My Touch</button></div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Confirm Dialog -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <p id="confirmMsg">Are you sure?</p>
+            <div class="confirm-buttons">
+                <button class="confirm-no" id="confirmNo">Cancel</button>
+                <button class="confirm-yes" id="confirmYes">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Info Blob -->
+    <div class="info-blob" id="infoBlob">?</div>
+    <div class="info-blob-panel" id="infoBlobPanel">
+        <div class="info-panel-inner">
+            <button class="info-panel-close" id="infoPanelClose">✕</button>
+            <h3>🍩 About This Game</h3>
+
+            <div class="section">
+                <div class="section-title">🍩 What Is This</div>
+                <p>Donut Tycoon is an idle clicker game. Click the donut to earn donuts, buy buildings that bake automatically, and watch your empire grow. Simple on the surface, but underneath there's a full game loop, state management, and persistent saves.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💾 Saving Your Progress</div>
+                <p>Use your email as a key to save and load your game. Nothing gets sent anywhere — everything stays on your device in localStorage. Different email, different save slot.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🌍 Braggers Community</div>
+                <p>Once you've built something worth flexing, share a bragger to the community gallery. There's a cooldown between shares so take your time, build something impressive, then show it off.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">⚠️ Heads Up</div>
+                <p>This is NOT an idle game with offline accumulation. There is no auto-save. Save manually whenever you feel satisfied with your donuts or before closing the game. You've been warned.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📖 My Touch</div>
+                <p>The original Donut Tycoon was written by someone on SoloLearn. I found it, fixed the broken save button, added the bragger generator, the community, and a bunch of small details that make everything feel more alive. Check the My Touch page at the bottom for the full story.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">💡 The Real Point</div>
+                <p>All the community stuff is fun, but the real reason I shared this code is so others can see some JavaScript basics in action. Clicker games teach you about game loops, state management, and local storage without needing a backend or libraries. Take the code. Break it. Learn from it. Make something better.</p>
+            </div>
+
+            <div class="info-panel-footer">Hopefully y'all learn something ;)<br>🧌</div>
+        </div>
+    </div>
+
+    <script>
+        "use strict";
+
+        let donuts = 0;
+        const donutsPerClick = 1;
+        let donutsPerSecond = 0;
+
+        const buildings = [
+            { name: "🖱 Cursor", baseCost: 15, costMult: 1.15, prod: 0.1, count: 0 },
+            { name: "👵 Grandma", baseCost: 100, costMult: 1.15, prod: 1, count: 0 },
+            { name: "🍩 Donut Stand", baseCost: 1100, costMult: 1.15, prod: 8, count: 0 },
+            { name: "🥮 Bakery", baseCost: 12000, costMult: 1.15, prod: 47, count: 0 },
+            { name: "🚚 Delivery Van", baseCost: 130000, costMult: 1.15, prod: 260, count: 0 },
+            { name: "🏭 Factory", baseCost: 1400000, costMult: 1.15, prod: 1400, count: 0 }
+        ];
+
+        function $(id) { return document.getElementById(id); }
+
+        function updateProduction() {
+            donutsPerSecond = buildings.reduce((total, b) => total + b.prod * b.count, 0);
+        }
+
+        function updateUI() {
+            $("score").innerHTML = Math.floor(donuts).toLocaleString();
+            $("cps").innerHTML = donutsPerSecond.toFixed(1) + " donuts/sec";
+            const container = $("buildings");
+            container.innerHTML = "";
+            for (let i = 0; i < buildings.length; i++) {
+                const b = buildings[i];
+                const cost = Math.floor(b.baseCost * Math.pow(b.costMult, b.count));
+                const affordable = donuts >= cost;
+                const button = document.createElement("button");
+                button.textContent = affordable ? `Buy (${cost.toLocaleString()})` : `Need ${cost.toLocaleString()}`;
+                button.disabled = !affordable;
+                button.dataset.index = i;
+                button.addEventListener("click", () => buyBuilding(i));
+                const div = document.createElement("div");
+                div.className = "building";
+                div.innerHTML = `<div class="name">${b.name}</div><div class="owned">${b.count} owned</div><div class="produces">each produces ${b.prod.toFixed(1)} /s</div>`;
+                div.appendChild(button);
+                container.appendChild(div);
+            }
+        }
+
+        function buyBuilding(i) {
+            const b = buildings[i];
+            const cost = Math.floor(b.baseCost * Math.pow(b.costMult, b.count));
+            if (donuts >= cost) {
+                donuts -= cost;
+                b.count++;
+                updateProduction();
+                updateUI();
+                showFloatingText(`+${b.prod}/s`, $("big-donut"));
+            }
+        }
+
+        function showFloatingText(text, parent) {
+            const float = document.createElement("div");
+            float.className = "float";
+            float.textContent = text;
+            const rect = parent.getBoundingClientRect();
+            float.style.left = rect.left + rect.width / 2 + "px";
+            float.style.top = rect.top + "px";
+            document.body.appendChild(float);
+            setTimeout(() => float.remove(), 1200);
+        }
+
+        function clickDonut(e) {
+            e.preventDefault();
+            donuts += donutsPerClick;
+            const cookie = $("big-donut");
+            cookie.classList.add("clicked");
+            setTimeout(() => cookie.classList.remove("clicked"), 80);
+            showFloatingText("+1", cookie);
+            updateUI();
+        }
+
+        let lastTime = performance.now();
+        function gameLoop(now) {
+            const delta = (now - lastTime) / 1000;
+            lastTime = now;
+            donuts += donutsPerSecond * delta;
+            updateUI();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
+        function getRelativeTime(timestamp) {
+            const now = Date.now(); const diff = now - timestamp;
+            const seconds = Math.floor(diff / 1000); const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60); const days = Math.floor(hours / 24);
+            if (days > 30) return Math.floor(days / 30) + " month" + (Math.floor(days / 30) > 1 ? "s" : "") + " ago";
+            if (days > 0) return days + " day" + (days > 1 ? "s" : "") + " ago";
+            if (hours > 0) return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+            if (minutes > 0) return minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+            return "just now";
+        }
+
+        function showToast(msg, isError) {
+            var toast = $("toast");
+            toast.textContent = msg;
+            toast.className = "toast" + (isError ? " error" : "");
+            setTimeout(function() { toast.classList.add("show"); }, 10);
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(function() { toast.classList.remove("show"); }, 2500);
+        }
+
+        var confirmCallback = null;
+        function showConfirm(msg, callback) {
+            $("confirmMsg").textContent = msg;
+            $("confirmOverlay").classList.add("show");
+            confirmCallback = callback;
+        }
+        function hideConfirm() {
+            $("confirmOverlay").classList.remove("show");
+            confirmCallback = null;
+        }
+
+        function saveGameToEmail(email) {
+            const save = { donuts, buildings: buildings.map(b => ({ count: b.count })) };
+            localStorage.setItem("donutSave_" + email, JSON.stringify(save));
+            localStorage.setItem("donutSaveTime_" + email, Date.now().toString());
+            showFloatingText("💾 Saved", $("big-donut"));
+            showToast("✓ Saved to " + email);
+            refreshProgressList();
+        }
+
+        function loadGameFromEmail(email) {
+            const saved = localStorage.getItem("donutSave_" + email);
+            if (!saved) { showToast("✗ No save found for this email", true); return false; }
+            try {
+                const save = JSON.parse(saved);
+                if (typeof save !== "object" || save === null) throw new Error("Invalid");
+                donuts = save.donuts;
+                save.buildings.forEach((b, i) => { if (b && typeof b.count === "number") buildings[i].count = b.count; });
+                updateProduction(); updateUI();
+                showFloatingText("📂 Loaded", $("big-donut"));
+                showToast("✓ Loaded from " + email);
+                return true;
+            } catch (e) { showToast("✗ Failed to load save", true); return false; }
+        }
+
+        function getAllSavedEmails() {
+            const emails = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith("donutSave_") && !key.startsWith("donutSaveTime_")) {
+                    const email = key.replace("donutSave_", "");
+                    const timeKey = "donutSaveTime_" + email;
+                    const timestamp = localStorage.getItem(timeKey);
+                    emails.push({ email, timestamp: timestamp ? parseInt(timestamp) : 0 });
+                }
+            }
+            emails.sort((a, b) => b.timestamp - a.timestamp);
+            return emails;
+        }
+
+        function refreshProgressList() {
+            const list = $("progressList");
+            const emails = getAllSavedEmails();
+            if (emails.length === 0) {
+                list.innerHTML = '<div class="available-progresses-empty">No saved progress yet. Save your game first.</div>';
+                return;
+            }
+            list.innerHTML = "";
+            for (let i = 0; i < emails.length; i++) {
+                const item = emails[i];
+                const div = document.createElement("div");
+                div.className = "progress-item";
+                div.innerHTML = `<span>📧 ${item.email}</span><span class="progress-time">${item.timestamp ? getRelativeTime(item.timestamp) : 'unknown'}</span>`;
+                div.addEventListener("click", function() {
+                    $("emailInput").value = item.email;
+                    showConfirm("Load progress from " + item.email + "? This will overwrite your current game.", function() {
+                        loadGameFromEmail(item.email);
+                        $("progressList").classList.remove("show");
+                        $("progressToggle").classList.remove("open");
+                    });
+                });
+                list.appendChild(div);
+            }
+        }
+
+        function startGame() {
+            updateProduction(); updateUI(); refreshProgressList();
+
+            const cookie = $("big-donut");
+            cookie.addEventListener("click", clickDonut);
+            cookie.addEventListener("touchstart", (e) => { e.preventDefault(); clickDonut(e); }, { passive: false });
+
+            $("confirmYes").addEventListener("click", function() {
+                if (confirmCallback) confirmCallback();
+                hideConfirm();
+            });
+            $("confirmNo").addEventListener("click", hideConfirm);
+            $("confirmOverlay").addEventListener("click", function(e) {
+                if (e.target === $("confirmOverlay")) hideConfirm();
+            });
+
+            $("reset").addEventListener("click", () => {
+                showConfirm("Reset your entire game? All progress will be lost.", function() {
+                    donuts = 0;
+                    buildings.forEach(b => b.count = 0);
+                    updateProduction(); updateUI();
+                    showToast("⟲ Game reset");
+                });
+            });
+
+            $("saveEmail").addEventListener("click", () => {
+                const email = $("emailInput").value.trim();
+                if (!isValidEmail(email)) { showToast("✗ Please enter a valid email", true); return; }
+                showConfirm("Save current progress to " + email + "?", function() {
+                    saveGameToEmail(email);
+                });
+            });
+
+            $("loadEmail").addEventListener("click", () => {
+                const email = $("emailInput").value.trim();
+                if (!isValidEmail(email)) { showToast("✗ Please enter a valid email", true); return; }
+                showConfirm("Load progress from " + email + "? This will overwrite your current game.", function() {
+                    loadGameFromEmail(email);
+                });
+            });
+
+            const progressToggle = $("progressToggle");
+            const progressList = $("progressList");
+            progressToggle.addEventListener("click", function() {
+                const isOpen = progressList.classList.contains("show");
+                if (isOpen) { progressList.classList.remove("show"); progressToggle.classList.remove("open"); }
+                else { refreshProgressList(); progressList.classList.add("show"); progressToggle.classList.add("open"); }
+            });
+
+            $("bragBtn").addEventListener("click", function() { window.location.href = "brag.html"; });
+            $("storyBtn").addEventListener("click", function() { window.location.href = "story.html"; });
+
+            // Floating Blob Logic
+            var blob = $("infoBlob");
+            var blobPanel = $("infoBlobPanel");
+            var blobClose = $("infoPanelClose");
+            var isDragging = false;
+            var dragStartX = 0, dragStartY = 0;
+            var blobStartX = 0, blobStartY = 0;
+            var isPanelOpen = false;
+            var hasMoved = false;
+
+            var savedX = localStorage.getItem('blobX');
+            var savedY = localStorage.getItem('blobY');
+            if (savedX && savedY) {
+                blob.style.left = savedX + 'px';
+                blob.style.top = savedY + 'px';
+                blob.style.right = 'auto';
+                blob.style.bottom = 'auto';
+            } else {
+                blob.style.right = '20px';
+                blob.style.bottom = '100px';
+            }
+
+            function positionPanel() {
+                var blobRect = blob.getBoundingClientRect();
+                var panelX = blobRect.left - 140;
+                var panelY = blobRect.top - 420;
+                if (panelX < 10) panelX = 10;
+                if (panelX + 320 > window.innerWidth - 10) panelX = window.innerWidth - 330;
+                if (panelY < 10) panelY = blobRect.bottom + 10;
+                blobPanel.style.left = panelX + 'px';
+                blobPanel.style.top = panelY + 'px';
+            }
+
+            blob.addEventListener('pointerdown', function(e) {
+                isDragging = true;
+                hasMoved = false;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                var rect = blob.getBoundingClientRect();
+                blobStartX = rect.left;
+                blobStartY = rect.top;
+                blob.setPointerCapture(e.pointerId);
+            });
+
+            blob.addEventListener('pointermove', function(e) {
+                if (!isDragging) return;
+                var dx = e.clientX - dragStartX;
+                var dy = e.clientY - dragStartY;
+                if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+                var newX = blobStartX + dx;
+                var newY = blobStartY + dy;
+                newX = Math.max(0, Math.min(window.innerWidth - 52, newX));
+                newY = Math.max(0, Math.min(window.innerHeight - 52, newY));
+                blob.style.left = newX + 'px';
+                blob.style.top = newY + 'px';
+                blob.style.right = 'auto';
+                blob.style.bottom = 'auto';
+                if (isPanelOpen) positionPanel();
+            });
+
+            blob.addEventListener('pointerup', function(e) {
+                isDragging = false;
+                if (!hasMoved) {
+                    if (isPanelOpen) closePanel();
+                    else openPanel();
+                } else {
+                    localStorage.setItem('blobX', blob.style.left.replace('px',''));
+                    localStorage.setItem('blobY', blob.style.top.replace('px',''));
+                }
+            });
+
+            function openPanel() {
+                positionPanel();
+                blobPanel.classList.add('open');
+                isPanelOpen = true;
+                blob.textContent = '✕';
+            }
+
+            function closePanel() {
+                blobPanel.classList.remove('open');
+                isPanelOpen = false;
+                blob.textContent = '?';
+            }
+
+            blobClose.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closePanel();
+            });
+
+            document.addEventListener('click', function(e) {
+                if (isPanelOpen && !blobPanel.contains(e.target) && e.target !== blob) {
+                    closePanel();
+                }
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", startGame);
+        } else {
+            startGame();
+        }
+    </script>
+</body>
+</html>
